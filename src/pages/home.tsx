@@ -6,13 +6,14 @@ export default function Home() {
     const [queue, setQueue] = useState<Song[]>([]);
     const [currSong, setCurrSong] = useState<Song>();
     const [isPlaying, setIsPlaying] = useState(false);
-    const [songEnded, setSongEnded] = useState(false);
+    const [loaded, setLoaded] = useState(false);
     const playerRef: any = useRef(null);
+
     async function updateQueue() {
         const localQueue = await getQueue();
-
         setQueue(localQueue);
     }
+
     function getSyncedSeek(localQueue: Song[]): [Song, number] {
         const totalTime = localQueue.reduce(
             (acc, curr) => acc + curr.duration,
@@ -29,19 +30,12 @@ export default function Home() {
         }
         return [localQueue[0], 0];
     }
+
     function sync(localQueue: Song[]) {
         const [correctSong, seek] = getSyncedSeek(localQueue);
-        console.log(seek)
-        if (correctSong)
-            console.log("fixing song")
-
-            if (currSong !== correctSong) {
-                setCurrSong(correctSong);
-            }
-        if (correctSong) {
-            console.log("fixing")
-            playerRef.current?.seek(seek);
-        }
+        console.log(seek);
+        if (correctSong) if (currSong !== correctSong) setCurrSong(correctSong);
+        if (correctSong) playerRef.current?.seek(seek);
     }
     useEffect(() => {
         updateQueue();
@@ -53,29 +47,16 @@ export default function Home() {
                 if (playerRef.current) {
                     const offset = playerRef.current.seek() - seek;
                     if (correctSong && currSong) {
-                        if (currSong.name !== correctSong.name || offset > 2) {
-                            console.log(offset)
+                        if (currSong.name !== correctSong.name || offset > 2)
                             sync(queue);
-                        }
-                    } else {
-                        console.log(correctSong,currSong)
-                        sync(queue);
-                    }
-                } else {
-                    console.log("WHY2")
-
-                    sync(queue);
-                }
+                    } else sync(queue);
+                } else sync(queue);
             }
         }, 500);
         return () => {
             clearInterval(coolinterval);
         };
-    }, [queue,currSong]);
-    useEffect(() => {}, [songEnded]);
-    function handleSongEnd() {
-        setSongEnded(true);
-    }
+    }, [queue, currSong]);
     function handleSongPlay() {
         setIsPlaying(true);
         sync(queue);
@@ -83,7 +64,9 @@ export default function Home() {
     return (
         <div
             onClick={() => {
-                if (!isPlaying) playerRef.current?.play();
+                if (!isPlaying && loaded) {
+                    playerRef.current?.play();
+                }
             }}
             className="d-flex min-vh-100 align-items-center justify-content-center"
         >
@@ -92,18 +75,26 @@ export default function Home() {
                     src={currSong.url}
                     ref={playerRef}
                     playing={true}
-                    onEnd={handleSongEnd}
+                    onLoad={() => {
+                        setLoaded(true);
+                        playerRef.current?.play();
+                    }}
+                    onEnd={() => setLoaded(false)}
                     onPlay={handleSongPlay}
                 />
             )}
-            <div>
+            <div className="centre-card">
                 <div className="h3">Abhinay's LoFi Radio</div>
                 {isPlaying && (
                     <div className="">Currently Playing : {currSong?.name}</div>
                 )}
-                {!isPlaying && (
+                {!isPlaying && loaded && (
                     <div className="">
                         Click anywhere to start the playback!
+                    </div>
+                )}
+                {!loaded && (
+                    <div className="spinner-border text-light" role="status">
                     </div>
                 )}
             </div>
