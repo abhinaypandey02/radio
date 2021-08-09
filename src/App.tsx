@@ -1,10 +1,10 @@
 import React from "react";
 import "./App.css";
-import Home from "./pages/home";
+import Player from "./pages/player";
 function App() {
     return (
         <div className="App">
-            <Home />
+            <Player />
         </div>
     );
 }
