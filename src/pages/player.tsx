@@ -1,7 +1,8 @@
 import React, {useEffect, useRef, useState} from "react";
 import ReactHowler from "react-howler";
-import {io} from 'socket.io-client';
+import {io, Socket} from 'socket.io-client';
 import CurrentlyPlaying from "../interfaces/currentlyPlaying";
+import {DefaultEventsMap} from "socket.io-client/build/typed-events";
 
 const SYNC_RATE=2000;
 
@@ -12,9 +13,15 @@ export default function Player() {
     const [currentState,setCurrentState]=useState<"X"|"W"|"P">("X");
     const [interacted,setInteracted]=useState(false);
     const playerRef: any = useRef(null);
-    const socket=io("http://gabriel.sed.lol:3001");
+    const [name,setName]=useState<string>();
+    const [socket,setSocket]=useState<Socket<DefaultEventsMap, DefaultEventsMap>>();
 
     useEffect(()=>{
+        if(!socket) {
+            const socket=io("http://34.131.60.7:3001");
+            setSocket(socket);
+            return;
+        }
         function sync(currSongArg?:CurrentlyPlaying){
             if(!currSong)return;
             let currentSong=currSong;
@@ -26,14 +33,14 @@ export default function Player() {
             }
         }
 
-        let askSongInterval:any;
         socket.on("connect",()=>{
-            askSongInterval=setInterval(()=>{
+            setInterval(()=>{
+                console.log("emoting")
                 socket.emit("askSong")
             },SYNC_RATE)
             socket.on("receiveSong",(currentlyPlaying:CurrentlyPlaying|null,state:"W"|"P"|"X",nextPlaying:CurrentlyPlaying|null)=>{
 
-
+                console.log(currentlyPlaying?.song.id,state)
                 if(state==="P"&&currentlyPlaying) {
                     setCurrSong(currentlyPlaying);
                     sync(currentlyPlaying)
@@ -47,12 +54,7 @@ export default function Player() {
                 setCurrentState(state);
             })
         })
-        return ()=>{
-            if(askSongInterval) clearInterval(askSongInterval)
-            socket.off("connect")
-            socket.off("receiveSong");
-        }
-    },[currSong,isPlaying])
+    },[currSong,isPlaying,socket])
 
     function handleSongLoad(){
         setLoaded(true);
@@ -95,7 +97,7 @@ export default function Player() {
                 </div>
                 {isPlaying&&interacted && (
                     <div className="">
-                        Currently Playing : {currSong?.song.name} Duration - {currSong?.song.duration}
+                        Currently Playing : {currSong?.song.name}
                     </div>
                 )}
                 {loaded && !interacted && (
