@@ -61,7 +61,7 @@ export default function Player() {
     }, [socket])
     useEffect(() => {
         if (!socket) {
-            const socket = io("http://34.131.157.38:3001");
+            const socket = io("http://localhost:3001");
             setSocket(socket);
             return;
         }
@@ -169,7 +169,6 @@ export default function Player() {
             </Modal>
             {currSong && (
                 <ReactHowler
-                    preload={true}
                     volume={volume/100}
                     src={currSong.song.url}
                     ref={playerRef}
