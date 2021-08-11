@@ -64,9 +64,9 @@ export default function Player() {
         }
 
         function sync(currSongArg?: CurrentlyPlaying) {
-            if (!currSong) return;
             let currentSong = currSong;
             if (currSongArg) currentSong = currSongArg;
+            if (!currentSong) return;
             const seek = (new Date().getTime() - currentSong.start) / 1000;
             const offset = Math.abs(seek - playerRef.current?.seek());
             if (offset > 1) {
@@ -151,7 +151,6 @@ export default function Player() {
                 <Modal.Body>
                     <Form.Group className="mb-3">
                         <Form.Control placeholder="Name" value={name} onChange={e => setName(e.target.value)}/>
-
                     </Form.Group>
                     <Form.Group className="mt-3">
                         <Button onClick={handleChatClick} type="submit">Chat</Button>
