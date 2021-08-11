@@ -23,12 +23,13 @@ function ChatBox({chats, sendMessage, name}: { chats: Chat[], sendMessage: (mess
 
         <Form onSubmit={(e) => {
             e.preventDefault();
+            if(message==="")return;
             setMessage("");
             sendMessage(message)
         }} className="d-flex">
             <Form.Control className="me-2" value={message} onChange={e => setMessage(e.target.value)}
                           placeholder="Write a message"/>
-            <Button type="submit">Send</Button>
+            <Button disabled={message===""} type="submit">Send</Button>
         </Form>
 
     </div>
