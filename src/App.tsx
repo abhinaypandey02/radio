@@ -3,8 +3,10 @@ import "./App.css";
 import Player from "./pages/player";
 function App() {
     return (
-        <div className="App container">
-            <Player />
+        <div className="App ">
+            <div className="container">
+                <Player />
+            </div>
         </div>
     );
 }
