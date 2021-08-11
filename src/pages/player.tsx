@@ -58,7 +58,7 @@ export default function Player() {
     }, [socket])
     useEffect(() => {
         if (!socket) {
-            const socket = io("http://34.131.60.7:3001");
+            const socket = io("http://localhost:3001");
             setSocket(socket);
             return;
         }
