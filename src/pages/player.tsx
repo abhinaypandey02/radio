@@ -48,6 +48,7 @@ export default function Player() {
     const [isChatModalOpen, setIsChatModalOpen] = useState(false);
     const [socket, setSocket] = useState<Socket<DefaultEventsMap, DefaultEventsMap>>();
     const [chats, setChats] = useState<Chat[]>([]);
+    const [volume,setVolume]=useState(100);
     useEffect(() => {
         const boxRef = document.getElementById("chatBox");
         if (boxRef)
@@ -168,6 +169,8 @@ export default function Player() {
             </Modal>
             {currSong && (
                 <ReactHowler
+                    preload={true}
+                    volume={volume/100}
                     src={currSong.song.url}
                     ref={playerRef}
                     playing={isPlaying}
@@ -198,6 +201,7 @@ export default function Player() {
                 {!loaded &&
                 <div className="spinner-border text-light m-3" role="status"/>
                 }
+                <input value={volume} onChange={e=> setVolume(parseInt(e.target.value))} step={1} min={1} max={100} className="form-range" type="range"/>
                 <hr/>
                 <div className="d-flex justify-content-between align-items-center">
                     {chats.length > 0 &&
