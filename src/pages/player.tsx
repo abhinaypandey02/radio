@@ -21,7 +21,8 @@ function ChatBox({chats, sendMessage, name}: { chats: Chat[], sendMessage: (mess
             </div>)}
         </div>
 
-        <Form onSubmit={() => {
+        <Form onSubmit={(e) => {
+            e.preventDefault();
             setMessage("");
             sendMessage(message)
         }} className="d-flex">
